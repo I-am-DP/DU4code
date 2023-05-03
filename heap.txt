@@ -1,58 +1,66 @@
 
 
-
 #include <iostream>
+#include <cstdlib>
+#include <cmath>
+#include <fstream>
+#include <ctime>
+
 using namespace std;
 
-void heapify(int arr[], int n, int i) {
-    int largest = i; 
-    int left = 2 * i + 1; 
-    int right = 2 * i + 2;
-
- 
-    if (left < n && arr[left] > arr[largest])
-        largest = left;
-
-
-    if (right < n && arr[right] > arr[largest])
-        largest = right;
-
-  
-    if (largest != i) {
+void heapify(int arr[], int n, int i, int& comparisons) {
+    int largest = i;
+    int l = 2*i + 1;
+    int r = 2*i + 2;
+    if(l < n && arr[l] > arr[largest]) {
+        largest = l;
+        comparisons++;
+    }
+    if(r < n && arr[r] > arr[largest]) {
+        largest = r;
+        comparisons++;
+    }
+    if(largest != i) {
         swap(arr[i], arr[largest]);
-
-     
-        heapify(arr, n, largest);
+        heapify(arr, n, largest, comparisons);
+        comparisons++;
     }
 }
 
-void build_max_heap(int arr[], int n) {
-   
-    for (int i = n / 2 - 1; i >= 0; i--)
-        heapify(arr, n, i);
-}
-
-void heapsort(int arr[], int n) {
-    build_max_heap(arr, n);
-
-    
-    for (int i = n - 1; i >= 0; i--) {
-        
+int heapSort(int arr[], int n) {
+    int comparisons = 0;
+    for(int i=n/2-1; i>=0; i--) {
+        heapify(arr, n, i, comparisons);
+    }
+    for(int i=n-1; i>=0; i--) {
         swap(arr[0], arr[i]);
-
-        
-        heapify(arr, i, 0);
+        heapify(arr, i, 0, comparisons);
     }
+    return comparisons;
 }
 
 int main() {
-    int arr[] = { 12, 11, 13, 5, 6, 7 };
-    int n = sizeof(arr) / sizeof(arr[0]);
+    // set up output file
+    ofstream outfile;
+    outfile.open("comparisons.csv");
+    outfile << "Size,HeapSort,ComparisonBound\n";
 
-    heapsort(arr, n);
+    // test the algorithm on 100 different inputs of sizes varying from 30 to 1000
+    for(int n=30; n<=1000; n+=10) {
+        int arr[n];
+        for(int i=0; i<n; i++) {
+            arr[i] = rand() % 1000 + 1;
+        }
+        int comparisons = heapSort(arr, n);
 
-    cout << "Sorted array is \n";
-    for (int i = 0; i < n; ++i)
-        cout << arr[i] << " ";
-    cout << endl;
+        // calculate comparison bound of nlogn
+        int comparisonBound = n * log2(n);
+
+        // output the results to the file
+        outfile << n << "," << comparisons << "," << comparisonBound << "\n";
+    }
+
+    outfile.close();
+    cout << "Data written to comparisons.csv\n";
+    return 0;
 }
