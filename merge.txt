@@ -1,0 +1,82 @@
+merge sort
+
+#include <iostream>
+#include <cstdlib>
+#include <cmath>
+#include <fstream>
+#include <ctime>
+
+using namespace std;
+
+void merge(int arr[], int l, int m, int r, int& comparisons) {
+    int n1 = m - l + 1;
+    int n2 = r - m;
+
+    int L[n1], R[n2];
+
+    for(int i=0; i<n1; i++)
+        L[i] = arr[l + i];
+    for(int j=0; j<n2; j++)
+        R[j] = arr[m + 1 + j];
+
+    int i=0, j=0, k=l;
+    while(i<n1 && j<n2) {
+        if(L[i] <= R[j]) {
+            arr[k] = L[i];
+            i++;
+        } else {
+            arr[k] = R[j];
+            j++;
+        }
+        k++;
+        comparisons++;
+    }
+
+    while(i<n1) {
+        arr[k] = L[i];
+        i++;
+        k++;
+    }
+
+    while(j<n2) {
+        arr[k] = R[j];
+        j++;
+        k++;
+    }
+}
+
+void mergeSort(int arr[], int l, int r, int& comparisons) {
+    if(l < r) {
+        int m = l + (r-l) / 2;
+        mergeSort(arr, l, m, comparisons);
+        mergeSort(arr, m+1, r, comparisons);
+        merge(arr, l, m, r, comparisons);
+    }
+}
+
+int main() {
+    // set up output file
+    ofstream outfile;
+    outfile.open("comparisons.csv");
+    outfile << "Size,MergeSort,ComparisonBound\n";
+
+    // test the algorithm on 100 different inputs of sizes varying from 30 to 1000
+    for(int n=30; n<=1000; n+=10) {
+        int arr[n];
+        for(int i=0; i<n; i++) {
+            arr[i] = rand() % 1000 + 1;
+        }
+        int comparisons = 0;
+        mergeSort(arr, 0, n-1, comparisons);
+
+        // calculate comparison bound of nlogn
+        int comparisonBound = n * log2(n);
+
+        // output the results to the file
+        outfile << n << "," << comparisons << "," << comparisonBound << "\n";
+    }
+
+    outfile.close();
+    cout << "Data written to comparisons.csv\n";
+    return 0;
+}
