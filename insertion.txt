@@ -1,0 +1,53 @@
+insertion sort with comparison 
+create a file comparisons.csv
+
+
+#include <iostream>
+#include <cstdlib>
+#include <cmath>
+#include <fstream>
+#include <ctime>
+
+using namespace std;
+
+int insertionSort(int arr[], int n) {
+    int comparisons = 0;
+    for(int i=1; i<n; i++) {
+        int key = arr[i];
+        int j = i-1;
+        while(j>=0 && arr[j]>key) {
+            arr[j+1] = arr[j];
+            j--;
+            comparisons++;
+        }
+        arr[j+1] = key;
+    }
+    return comparisons;
+}
+
+int main() {
+    // set up output file
+    ofstream outfile;
+    outfile.open("comparisons.csv");
+    outfile << "Size,InsertionSort,ComparisonBound\n";
+
+    // test the algorithm on 100 different inputs of sizes varying from 30 to 1000
+    for(int n=30; n<=1000; n+=10) {
+        int arr[n];
+        for(int i=0; i<n; i++) {
+            arr[i] = rand() % 1000 + 1;
+        }
+        int comparisons = insertionSort(arr, n);
+
+        // calculate comparison bound of nlogn
+        int comparisonBound = n * log2(n);
+
+        // output the results to the file
+        outfile << n << "," << comparisons << "," << comparisonBound << "\n";
+    }
+
+    outfile.close();
+    cout << "Data written to comparisons.csv\n";
+    return 0;
+}
+
